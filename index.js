@@ -13,7 +13,8 @@ const LIGHT_HOUSE_USER_AGENT =
   'Mozilla/5.0 (Linux Android 7.0 Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4590.2 Mobile Safari/537.36 Chrome-Lighthouse'
 
 // Lighthouse uses this device
-const DEVICE = KnownDevices['Moto G4']
+const DEVICE_CODE = 'Moto G4'
+const DEVICE = KnownDevices[DEVICE_CODE]
 
 const WEBSITE_URLS = [
   'https://www.mykitsch.com/', // MANUALLY REVIEWED BASELINE: NOT MALICIOUS OR CLOAKING (pre-rendered by ems)
@@ -179,6 +180,8 @@ async function captureMetrics(url, userAgent) {
   })
 
   const domSize = await getSerializedDOMSize(page)
+  const performanceTimings = await page.evaluate(() => JSON.parse(JSON.stringify(window.performance.timing)))
+  const pageContent = await page.content()
 
   await page.tracing.stop()
   await page.close()
@@ -193,6 +196,8 @@ async function captureMetrics(url, userAgent) {
     svgHack: lcpElement && isLargeTransparentSVG(lcpElement),
     lcpElement,
     tracePath,
+    performanceTimings,
+    pageContent,
   }
 }
 
@@ -211,8 +216,16 @@ async function main() {
       totalProbability += parseFloat(probabilityOfCloaking)
 
       tests.push({
-        standardMetrics,
-        lighthouseMetrics,
+        standardMetrics: {
+          ...standardMetrics,
+          userAgent: NORMAL_USER_AGENT,
+          device: DEVICE_CODE,
+        },
+        lighthouseMetrics: {
+          ...lighthouseMetrics,
+          userAgent: LIGHT_HOUSE_USER_AGENT,
+          device: DEVICE_CODE,
+        },
         probabilityOfCloaking,
       })
     }
