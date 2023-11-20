@@ -181,7 +181,6 @@ async function captureMetrics(url, userAgent) {
 
   const domSize = await getSerializedDOMSize(page)
   const performanceTimings = await page.evaluate(() => JSON.parse(JSON.stringify(window.performance.timing)))
-  const pageContent = await page.content()
 
   await page.tracing.stop()
   await page.close()
@@ -197,7 +196,6 @@ async function captureMetrics(url, userAgent) {
     lcpElement,
     tracePath,
     performanceTimings,
-    pageContent,
   }
 }
 

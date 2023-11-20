@@ -1,3 +1,4 @@
 node_modules
 full-results-*.json
 traces/*
+.DS_STORE
